@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko" class="scroll-smooth">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>서울 히스토리맵, 1919년 3월 그날의 발자취</title>
+
+    <link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <link rel="stylesheet" href="./css/index.css" />
+</head>
+
+<body class="global-body">
+
+
+    <!-- section2 -->
+    <section data-section="2" class="story-section scroll-section" id="section-2">
+        <header class="story-header">
+            <!-- 기존 헤더 내용 유지 -->
+            <div class="story-header-bg"></div>
+            <div class="story-overlay story-overlay-header"></div>
+            <div class="story-header-content">
+                <div class="story-chapter-group">
+                    <span class="story-chapter-num">02</span>
+                    <div class="story-divider"></div>
+                    <span class="story-chapter-subtitle">거사의 맹세</span>
+                </div>
+                <h1 class="story-title">세상을 깨울 함성을 준비하다.</h1>
+                <p class="story-desc">역사를 바꾼 그날의 외침 뒤에는, 가장 어두운 밤을 지새운 숭고한 계획이 있었다.</p>
+            </div>
+        </header>
+
+        <!-- 💡 수정된 부분: 고정된 카드와 스크롤 트랙 구조 -->
+        <div class="sc2-content-wrap">
+            <!-- 화면에 고정(sticky)되는 뷰 -->
+            <div class="sc2-sticky-view">
+                <div class="sc2-map-pane">
+                    <div class="sc2-map-inner" id="map-s2"></div>
+                    <div class="sc2-map-shadow"></div>
+                </div>
+                <div class="sc2-timeline-pane">
+                    <!-- 여러 개의 카드가 아닌 1개의 고정된 카드 -->
+                    <div class="sc2-timeline-item" id="sc2-fixed-card">
+                        <!-- 💡 새롭게 추가된 왼쪽 닷(Dot) 네비게이션 영역 -->
+                        <div class="sc2-card-dots" id="sc2-card-dots"></div>
+
+                        <!-- 기존 텍스트 및 이미지 영역 -->
+                        <div class="sc2-card-content">
+                            <span class="sc2-item-date" id="sc2-card-date"></span>
+                            <h3 class="sc2-item-title" id="sc2-card-title"></h3>
+                            <img src="" alt="" class="sc2-item-img" id="sc2-card-img" style="display: none;">
+                            <p class="sc2-item-desc" id="sc2-card-desc"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 스크롤을 인식하기 위한 투명한 트랙 (JS에서 높이 채움) -->
+            <div class="sc2-scroll-track" id="sc2-scroll-track"></div>
+        </div>
+    </section>
+
+
+
+    <!-- section3 -->
+    <section data-section="3" class="story-section scroll-section" id="section-3">
+        <header class="story-header">
+            <div class="story-header-bg"></div>
+            <div class="story-overlay story-overlay-header"></div>
+            <div class="story-header-content">
+                <div class="story-chapter-group">
+                    <span class="story-chapter-num">03</span>
+                    <div class="story-divider"></div>
+                    <span class="story-chapter-subtitle">함성의 궤적</span>
+                </div>
+                <h1 class="story-title">두려움을 넘어선 발걸음, 거리를 덮다.</h1>
+                <p class="story-desc">탑골공원에서 피어오른 태극기의 물결은 이내 거대한 파도가 되어 서울의 모든 길목으로 뻗어나갔다.</p>
+            </div>
+        </header>
+
+        <!-- 💡 섹션 2와 동일한 Scrollytelling 구조로 변경 -->
+        <div class="sc3-content-wrap">
+            <div class="sc3-sticky-view">
+                <div class="sc3-map-pane">
+                    <div class="sc3-map-inner" id="map-s3"></div>
+                    <div class="sc3-map-shadow"></div>
+                </div>
+
+                <div class="sc3-timeline-pane">
+                    <!-- 고정된 1개의 카드 -->
+                    <div class="sc3-timeline-item" id="sc3-fixed-card">
+                        <!-- 왼쪽 닷 네비게이션 -->
+                        <div class="sc3-card-dots" id="sc3-card-dots"></div>
+
+                        <!-- 오른쪽 내용 영역 -->
+                        <div class="sc3-card-content">
+                            <h3 class="sc3-item-title" id="sc3-card-title"></h3>
+
+                            <!-- 경로 정보 박스 -->
+                            <div class="sc3-route-box" id="sc3-card-route-box" style="display: none;">
+                                <strong class="sc3-route-label" id="sc3-card-route-label"></strong>
+                                <p class="sc3-route-val" id="sc3-card-route-val"></p>
+                            </div>
+
+                            <!-- 설명 정보 박스 -->
+                            <div class="sc3-desc-box" id="sc3-card-desc-box" style="display: none;">
+                                <strong class="sc3-route-label" id="sc3-card-desc-label"></strong>
+                                <p class="sc3-item-desc" id="sc3-card-desc-val"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 투명한 스크롤 트랙 -->
+            <div class="sc3-scroll-track" id="sc3-scroll-track"></div>
+        </div>
+    </section>
+
+    <script src="api/config.js"></script>
+    <script src="api/mapService.js"></script>
+    <script type="module" src="js/index.js"></script>
+</body>
+
+</html>

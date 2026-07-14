@@ -1,0 +1,742 @@
+@charset "utf-8";
+
+/* =========================================
+   공통: 전체 페이지 기본 및 초기화
+========================================= */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --red: #a83228;
+    --red-deep: #5f1714;
+    --cream: #eee6d8;
+    --paper: #d8d0c2;
+    --ink: #0d0c0b;
+    --charcoal: #15120f;
+    --gold: #b8922e;
+    --muted: #81776b;
+}
+
+body,
+.global-body {
+    background-color: var(--ink);
+    color: var(--cream);
+    margin: 0;
+    padding: 0;
+    scroll-behavior: smooth;
+}
+
+/* 모든 리플렛 지도의 기본 회색 배경을 투명으로 변경 */
+.leaflet-container {
+    background: transparent !important;
+}
+
+/* 타일 이미지가 덜 로드되었을 때 나타나는 회색 타일 방지 */
+.leaflet-tile {
+    background-color: transparent !important;
+}
+
+.leaflet-control-attribution {
+    display: none !important;
+}
+
+/* =========================================
+   [공통 스타일] 전체 섹션 및 헤더 영역
+========================================= */
+.story-section {
+    position: relative;
+    background-color: var(--ink);
+    color: white;
+}
+
+.story-overlay {
+    position: absolute;
+    inset: 0;
+    background-image: url("https://www.transparenttextures.com/patterns/natural-paper.png");
+    pointer-events: none;
+}
+
+.story-overlay-header {
+    opacity: 0.1;
+}
+
+.story-header {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    overflow: hidden;
+    padding: 0 2rem;
+}
+
+.story-header-bg {
+    position: absolute;
+    inset: 0;
+    background-color: var(--ink);
+    opacity: 0.9;
+}
+
+.story-header-content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+}
+
+.story-chapter-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.story-chapter-num {
+    font-family: 'Playfair Display', serif;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 2.25rem;
+}
+
+.story-divider {
+    height: 1px;
+    width: 3rem;
+    background-color: var(--red);
+}
+
+.story-chapter-subtitle {
+    color: var(--red);
+    font-weight: bold;
+    letter-spacing: 0.4em;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+}
+
+.story-title {
+    font-size: 2.25rem;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.02em;
+}
+
+.story-desc {
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0 auto;
+    font-style: italic;
+    font-size: 1.125rem;
+}
+
+@media (min-width: 768px) {
+    .story-title {
+        font-size: 3rem;
+    }
+}
+
+
+/* =========================================
+   Section 2: 거사의 맹세 (준비과정 타임라인)
+========================================= */
+.sc2-content-wrap {
+    position: relative;
+    width: 100%;
+}
+
+.sc2-map-inner {
+    position: absolute;
+    /* 절대 위치 추가 */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    /* 100% 대신 100vh로 화면 높이 꽉 차게 명시 */
+
+    /* 💡 만약 지도가 정상적으로 뜬다면, 아래 주석을 풀고 다시 적용해 보세요 */
+    filter: grayscale(100%) brightness(0.8);
+}
+
+/* 화면에 꽉 차게 고정되는 영역 */
+.sc2-sticky-view {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.sc2-map-pane {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: #0e0e0e;
+    z-index: 1;
+}
+
+/* 지도 위 그림자 효과 유지 */
+.sc2-map-shadow {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.9);
+    z-index: 2;
+}
+
+/* 카드를 담는 영역 (화면 위로 절대 위치 지정) */
+.sc2-timeline-pane {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    /* 세로 중앙 정렬 */
+    padding: 0 2rem;
+    pointer-events: none;
+}
+
+@media (min-width: 768px) {
+    .sc2-timeline-pane {
+        padding-left: 10%;
+    }
+}
+
+.sc2-timeline-list {
+    display: flex;
+    flex-direction: column;
+    gap: 80vh;
+}
+
+/* 카드 내부를 좌/우로 나누기 */
+.sc2-timeline-item {
+    display: flex;
+    /* 가로 배치 */
+    gap: 1.5rem;
+    /* 닷과 내용 사이 간격 */
+    pointer-events: auto;
+    background-color: rgba(14, 14, 14, 0.85);
+    backdrop-filter: blur(8px);
+    padding: 2.5rem 2rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100%;
+    max-width: 550px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+}
+
+/* 오른쪽 내용 영역 */
+.sc2-card-content {
+    flex: 1;
+    /* 남은 공간 모두 차지 */
+}
+
+/* 왼쪽 닷 컨테이너 */
+.sc2-card-dots {
+    display: flex;
+    flex-direction: column;
+    /* 세로로 배치 */
+    align-items: center;
+    /* 가로(좌우) 중앙 정렬 */
+    justify-content: center;
+    /* 💡 핵심: 세로(위아래) 중앙 정렬 추가! */
+    gap: 20px;
+    /* 점들 사이의 간격 */
+    /* margin-top: 10px; <- 이 부분은 지워주세요! */
+}
+
+/* 개별 닷 디자인 */
+.sc2-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+/* 활성화된 닷 디자인 */
+.sc2-dot.active {
+    background-color: #ffffff;
+    transform: scale(1.5);
+    /* 활성화 시 살짝 커짐 */
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+    /* 빛나는 효과 */
+}
+
+/* 스크롤을 발생시키는 투명한 트랙 */
+.sc2-scroll-track {
+    position: relative;
+    z-index: 20;
+    pointer-events: none;
+    margin-top: -100vh;
+    /* 첫 번째 스텝이 바로 보이도록 오프셋 당김 */
+}
+
+/* JS로 생성될 투명한 스크롤 스텝들 */
+.sc2-scroll-step {
+    height: 100vh;
+    /* 각 마커마다 스크롤할 높이 */
+    width: 100%;
+}
+
+.sc2-item-date {
+    display: inline-block;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 0.875rem;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+}
+
+.sc2-item-title {
+    font-size: 1.5rem;
+    color: white;
+    margin-bottom: 1rem;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+.sc2-item-desc {
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.625;
+}
+
+.sc2-scroll-reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sc2-scroll-reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.sc2-item-img {
+    width: 100%;
+    height: auto;
+    max-height: 250px;
+    /* 💡 사진이 너무 작아 보이면 이 숫자를 250~300 정도로 살짝 키워주세요 */
+    object-fit: contain;
+    border-radius: 0.5rem;
+
+    /* 💡 핵심: 어색해 보이는 테두리와 배경색 제거, 완벽한 가운데 정렬 */
+    border: none;
+    background-color: transparent;
+    display: block;
+    margin: 0 auto 1.2rem auto;
+}
+
+@keyframes sc2-marker-pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(168, 50, 40, 0);
+    }
+
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 15px rgba(168, 50, 40, 0);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(168, 50, 40, 0);
+    }
+}
+
+.sc2-marker-animate {
+    animation: sc2-marker-pulse 1.5s ease-out 1;
+}
+
+.sc2-marker-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.7s;
+}
+
+.sc2-marker-hidden {
+    opacity: 0;
+    transform: scale(0.5);
+}
+
+.sc2-marker-visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+
+/* =========================================
+   마커 기본 & 비활성 상태 (연한 색)
+========================================= */
+.sc2-marker-circle {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+}
+
+.sc2-marker-dimmed .sc2-marker-circle {
+    background-color: rgba(0, 0, 0, 0.3);
+    /* 연한 배경 */
+    color: rgba(255, 255, 255, 0.5);
+    /* 연한 글씨 */
+    box-shadow: none;
+}
+
+/* =========================================
+   마커 활성화 상태 (진한 색)
+========================================= */
+.sc2-marker-active .sc2-marker-circle {
+    background-color: rgba(0, 0, 0, 1);
+    /* 찐한 검정 */
+    color: #ffffff;
+    /* 찐한 흰색 글씨 */
+    box-shadow: 0 0 15px rgba(12, 4, 4, 0.8);
+    /* 그림자 효과 */
+}
+
+/* =========================================
+   마커 위 글씨(툴팁) 상태 제어
+========================================= */
+.sc2-tooltip-dimmed {
+    opacity: 0.4;
+    /* 비활성 시 글씨 반투명하게 */
+    transition: opacity 0.3s ease;
+}
+
+.sc2-tooltip-active {
+    opacity: 1;
+    /* 활성 시 글씨 뚜렷하게 */
+    transition: opacity 0.3s ease;
+}
+
+@media (max-width: 767px) {
+    .sc2-map-pane {
+        height: 45vh;
+        position: sticky;
+        top: 55vh;
+        bottom: 0;
+        z-index: 20;
+        overflow: hidden;
+    }
+
+    .sc2-map-inner {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .sc2-timeline-pane {
+        padding: 5vh 1rem 60vh 1rem;
+    }
+
+    .sc2-timeline-item {
+        padding: 1.2rem 1rem;
+        background-color: #131210;
+        border-radius: 0.75rem;
+        max-width: 100%;
+    }
+
+    .sc2-item-date {
+        font-size: 0.7rem;
+        margin-bottom: 0.4rem;
+        color: var(--gold);
+    }
+
+    .sc2-item-title {
+        font-size: 1.15rem;
+        line-height: 1.35;
+        margin-bottom: 0.75rem;
+    }
+
+    .sc2-item-img {
+        max-height: 110px;
+        margin-bottom: 0.75rem;
+    }
+
+    .sc2-item-desc {
+        font-size: 0.85rem;
+        line-height: 1.5;
+        color: rgba(238, 230, 216, 0.9);
+        word-break: keep-all;
+    }
+
+    .sc2-marker-circle {
+        width: 1.5rem;
+        height: 1.5rem;
+        font-size: 0.75rem;
+    }
+}
+
+
+/* =========================================
+   Section 3: 함성의 궤적 (고정형 스크롤리텔링)
+========================================= */
+.sc3-content-wrap {
+    position: relative;
+    width: 100%;
+}
+
+.sc3-sticky-view {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.sc3-map-pane,
+.sc3-map-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #0e0e0e;
+}
+
+.sc3-map-inner {
+    filter: grayscale(100%) brightness(0.8);
+}
+
+.sc3-map-shadow {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.9);
+    z-index: 2;
+}
+
+/* 카드 영역 고정 및 중앙 정렬 */
+.sc3-timeline-pane {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    padding-left: 5%;
+    pointer-events: none;
+}
+
+/* 단일 카드 디자인 (닷 포함 레이아웃) */
+.sc3-timeline-item {
+    display: flex;
+    gap: 1.5rem;
+    pointer-events: auto;
+    background-color: rgba(14, 14, 14, 0.85);
+    backdrop-filter: blur(8px);
+    padding: 2.5rem 2rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+}
+
+.sc3-card-content {
+    flex: 1;
+}
+
+/* 왼쪽 닷(Dot) 네비게이션 */
+.sc3-card-dots {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* 세로 중앙 정렬 */
+    gap: 10px;
+}
+
+.sc3-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.sc3-dot.active {
+    background-color: #ffffff;
+    transform: scale(1.5);
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+}
+
+/* 텍스트 요소들 */
+.sc3-item-title {
+    font-size: 1.5rem;
+    color: white;
+    margin-bottom: 1.2rem;
+    font-weight: bold;
+}
+
+.sc3-route-box {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 1.2rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(168, 50, 40, 0.3);
+    margin-bottom: 1.5rem;
+}
+
+.sc3-desc-box {
+    padding: 0 0.5rem;
+}
+
+.sc3-route-label {
+    display: block;
+    color: var(--red);
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+}
+
+.sc3-route-val {
+    color: #bbb;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0;
+    word-break: keep-all;
+}
+
+.sc3-item-desc {
+    color: rgba(255, 255, 255, 0.75);
+    line-height: 1.7;
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* 스크롤 트랙 */
+.sc3-scroll-track {
+    position: relative;
+    z-index: 20;
+    pointer-events: none;
+    margin-top: -100vh;
+}
+
+.sc3-scroll-step {
+    height: 100vh;
+    width: 100%;
+}
+
+/* 마커 디자인 */
+.sc3-point-marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.sc3-point-label {
+    background: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: bold;
+    margin-bottom: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    white-space: nowrap;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.sc3-point-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
+}
+
+.sc3-point-marker.start .sc3-point-dot,
+.sc3-point-marker.end .sc3-point-dot {
+    background-color: #000000;
+}
+
+.sc3-point-marker.start .sc3-point-label,
+.sc3-point-marker.end .sc3-point-label {
+    color: #ffffff;
+}
+
+/* 🚨 섹션 3의 지도 경로 내부 투명 처리 */
+#map-s3 path.sc3-draw-path {
+    fill: none !important;
+    fill-opacity: 0 !important;
+    background-color: transparent !important;
+}
+
+#map-s3 .leaflet-container {
+    background: transparent !important;
+}
+
+/* 모바일 대응 */
+@media (max-width: 767px) {
+    .sc3-sticky-view {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sc3-map-pane {
+        position: absolute;
+        top: 50vh;
+        height: 50vh;
+        border-top: 2px solid #131210;
+    }
+
+    .sc3-timeline-pane {
+        position: absolute;
+        top: 0;
+        height: 50vh;
+        align-items: center;
+        padding: 1rem;
+    }
+
+    .sc3-timeline-item {
+        padding: 1.5rem 1.2rem;
+        max-width: 100%;
+    }
+
+    .sc3-item-title {
+        font-size: 1.25rem;
+    }
+
+    .sc3-route-box {
+        padding: 1rem;
+    }
+
+    .sc3-item-desc {
+        font-size: 0.85rem;
+    }
+}
+
+/* 🚨 섹션 3: 선이 계속 흘러가는 애니메이션 */
+@keyframes sc3-dash-flow {
+    from { stroke-dashoffset: 30; }
+    to { stroke-dashoffset: 0; }
+}
+
+/* 💡 활성화된 경로(path)에만 애니메이션 강제 적용 */
+path.sc3-path-active {
+    animation: sc3-dash-flow 1s linear infinite !important;
+}
