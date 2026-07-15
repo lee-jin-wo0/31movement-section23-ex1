@@ -361,13 +361,13 @@ async function initSection2() {
 }
 
 /* =======================================================
-   섹션 3: 함성의 궤적 (광화문 고정 + 전체 경로 하이라이트)
+   섹션 3: 함성의 궤적 (서울시청 고정 + 전체 경로 상시 노출 & 개미 애니메이션)
 ======================================================= */
 async function initSection3() {
     const mapContainer = document.getElementById('map-s3');
     if (!mapContainer) return;
 
-    // 💡 1. 광화문 중심(37.5759, 126.9768)으로 레벨 9 고정, 조작 차단
+    // 1. 서울시청 중심(37.5665, 126.9780)으로 레벨 9 고정, 조작 차단
     const mapS3 = L.map('map-s3', {
         crs: getCrsEx(),
         zoomControl: false,
@@ -388,7 +388,7 @@ async function initSection3() {
     const section3El = document.getElementById('section-3');
     if (section3El) mapVisibilityObserver.observe(section3El);
 
-    let routeLayers = {}; // 생성된 7개의 경로 선을 저장할 객체
+    let routeLayers = {}; // 7개의 경로 선을 저장할 객체
     let activeMarkers = [];
 
     const sc3Groups = [
@@ -404,7 +404,7 @@ async function initSection3() {
 
         const timelineData3 = [];
 
-        // 💡 2. 데이터 파싱 및 7개 경로 지도에 미리 다 그려두기
+        // 2. 데이터 파싱 및 7개 경로 지도에 미리 다 그려두기
         sc3Groups.forEach(group => {
             const feature = sc3Data.features.find(f => String(f.id) === group.targetIds[0]);
             if (feature) {
@@ -419,21 +419,36 @@ async function initSection3() {
                     feature: feature
                 });
 
-                // 지도에 선 추가 (기본: 얇고 투명한 상태 + 비활성 클래스)
-                const layer = L.geoJSON(feature, {
-                    style: {
-                        color: '#000000',
-                        weight: 3,
-                        opacity: 0.15,
-                        lineJoin: 'round',
-                        className: 'sc3-path-inactive' // 👈 요기가 추가됐습니다!
-                    }
-                }).addTo(mapS3);
+                let lineGeo = null;
+                if (feature.geometry.type === 'GeometryCollection') {
+                    lineGeo = feature.geometry.geometries.find(g => g.type === 'LineString' || g.type === 'MultiLineString');
+                } else if (feature.geometry.type === 'LineString' || feature.geometry.type === 'MultiLineString') {
+                    lineGeo = feature.geometry;
+                }
 
-                routeLayers[group.targetIds[0]] = layer;
+                if (lineGeo) {
+                    const lineFeature = {
+                        type: "Feature",
+                        properties: feature.properties,
+                        geometry: lineGeo
+                    };
+
+                    const layer = L.geoJSON(lineFeature, {
+                        style: {
+                            color: '#000000',
+                            weight: 10,        // 💡 굵기를 3 -> 4로 약간 올려서 눈에 띄게 함
+                            opacity: 0.4,     // 💡 투명도를 0.15 -> 0.4로 올려서 확실히 보이게 함
+                            lineJoin: 'round',
+                            fill: false
+                        }
+                    }).addTo(mapS3);
+
+                    routeLayers[group.targetIds[0]] = layer;
+                }
             }
         });
 
+        // 3. 투명 스크롤 스텝 및 Dot(점) 생성
         const scrollTrack = document.getElementById('sc3-scroll-track');
         const dotsContainer = document.getElementById('sc3-card-dots');
         scrollTrack.innerHTML = '';
@@ -454,7 +469,7 @@ async function initSection3() {
             dotsContainer.appendChild(dot);
         });
 
-        // 💡 3. 내용 교체 및 강조(Highlight) 함수
+        // 4. 내용 교체 및 강조(Highlight) 함수
         let currentSection3Index = -1;
 
         function updateSection3(index) {
@@ -484,37 +499,36 @@ async function initSection3() {
                 else dot.classList.remove('active');
             });
 
-            // --- B. 7개의 선 스타일 변경 (현재 순서만 진하게) ---
+            // --- B. 선 스타일 변경 및 개미 기어가기 애니메이션 클래스 주입 ---
             timelineData3.forEach((item, idx) => {
                 const geoJsonGroup = routeLayers[item.id];
                 if (geoJsonGroup) {
-                    // 💡 그룹 안의 실제 선(path) 요소 하나하나에 직접 스타일을 먹입니다
                     geoJsonGroup.eachLayer((layer) => {
                         if (idx === index) {
-                            // 선택된 선: 굵게, 불투명하게, 점선 추가, 애니메이션 클래스 달기
-                            layer.setStyle({
-                                color: '#000000',
-                                weight: 8,
-                                opacity: 1.0,
-                                dashArray: '15, 15', // Leaflet 자체 기능으로 점선 만들기
-                                className: 'sc3-path-active'
-                            });
-                            layer.bringToFront();
+                            // 활성화된 선 (굵고 진한 점선)
+                            layer.setStyle({ color: '#ff0000', weight: 8, opacity: 1.0, dashArray: '15, 15' });
+                            if (typeof layer.bringToFront === 'function') layer.bringToFront();
                         } else {
-                            // 나머지 선: 얇게, 투명하게, 점선 제거
-                            layer.setStyle({
-                                color: '#000000',
-                                weight: 3,
-                                opacity: 0.15,
-                                dashArray: null, // 실선으로 복구
-                                className: 'sc3-path-inactive'
-                            });
+                            // 비활성화된 선 (💡 적당히 얇고 반투명하게 설정하여 배경으로 남김)
+                            layer.setStyle({ color: '#000000', weight: 3, opacity: 0.8, dashArray: null });
+                        }
+
+                        // SVG path에 직접 접근해서 CSS 애니메이션 클래스 달아주기
+                        const domEl = layer.getElement ? layer.getElement() : layer._path;
+                        if (domEl) {
+                            if (idx === index) {
+                                domEl.classList.remove('sc3-path-inactive');
+                                domEl.classList.add('sc3-path-active');
+                            } else {
+                                domEl.classList.remove('sc3-path-active');
+                                domEl.classList.add('sc3-path-inactive');
+                            }
                         }
                     });
                 }
             });
 
-            // --- C. 마커 초기화 및 현재 경로의 시작/도착 마커만 생성 ---
+            // --- C. 마커 업데이트 (출발, 도착) ---
             activeMarkers.forEach(m => mapS3.removeLayer(m));
             activeMarkers = [];
 
@@ -552,7 +566,6 @@ async function initSection3() {
 
     } catch (error) { console.error(error); }
 }
-
 
 /* =======================================================
    🚀 최종 메인 앱 실행 (App Initialization)

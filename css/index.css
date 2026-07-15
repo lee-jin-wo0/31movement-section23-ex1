@@ -158,7 +158,7 @@ body,
     /* 100% 대신 100vh로 화면 높이 꽉 차게 명시 */
 
     /* 💡 만약 지도가 정상적으로 뜬다면, 아래 주석을 풀고 다시 적용해 보세요 */
-    filter: grayscale(100%) brightness(0.8);
+    filter: grayscale(0%) brightness(100%);
 }
 
 /* 화면에 꽉 차게 고정되는 영역 */
@@ -514,14 +514,14 @@ body,
 }
 
 .sc3-map-inner {
-    filter: grayscale(100%) brightness(0.8);
+    filter: grayscale(0%) brightness(100%);
 }
 
 .sc3-map-shadow {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.9);
+    /* box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.9); */
     z-index: 2;
 }
 
@@ -535,7 +535,7 @@ body,
     z-index: 10;
     display: flex;
     align-items: center;
-    padding-left: 5%;
+    padding-left: 10%;
     pointer-events: none;
 }
 
@@ -732,11 +732,18 @@ body,
 
 /* 🚨 섹션 3: 선이 계속 흘러가는 애니메이션 */
 @keyframes sc3-dash-flow {
-    from { stroke-dashoffset: 30; }
-    to { stroke-dashoffset: 0; }
+    0% { stroke-dashoffset: 30; }
+    100% { stroke-dashoffset: 0; }
 }
 
-/* 💡 활성화된 경로(path)에만 애니메이션 강제 적용 */
+/* 활성화된 경로에 강제로 애니메이션 적용 */
 path.sc3-path-active {
+    stroke-dasharray: 15, 15 !important;
     animation: sc3-dash-flow 1s linear infinite !important;
+}
+
+/* 비활성화된 경로는 애니메이션 정지 */
+path.sc3-path-inactive {
+    stroke-dasharray: none !important;
+    animation: none !important;
 }
